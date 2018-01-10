@@ -7,6 +7,8 @@
 
 //To use MQTT, install Library "PubSubClient" and switch next line to 1
 #define USE_MQTT 0
+//If you don`t want to use local button switch to 0
+#define USE_LOCAL_BUTTON 1
 
 #if USE_MQTT == 1
 	#include <PubSubClient.h>
@@ -36,7 +38,7 @@ int gpio12Relay = 12;
 bool lamp = 0;
 bool relais = 0;
 
-//Test des GPIO 0 alle 0.1 sek
+//Test  GPIO 0 every 0.1 sec
 Ticker checker;
 bool status = 1;
 
@@ -111,7 +113,9 @@ void setup(void){
   server.begin();
   Serial.println("HTTP server started");
 
+ #if USE_LOCAL_BUTTON == 1
   checker.attach(0.1, check);
+ #endif
 
 }
 
@@ -147,7 +151,7 @@ void MqttReconnect() {
 }
 #endif
 
-//check gpio0
+//check gpio0 (button of Sonoff device)
 void check(void)
 {
 if ((digitalRead(0) == 0) and not status)
