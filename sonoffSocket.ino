@@ -3,6 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
+#include <Ticker.h>
 
 //To use MQTT, install Library "PubSubClient" and switch next line to 1
 #define USE_MQTT 0
@@ -35,10 +36,15 @@ int gpio12Relay = 12;
 bool lamp = 0;
 bool relais = 0;
 
+//Test des GPIO 0 alle 0.1 sek
+Ticker checker;
+bool status = 1;
+
 void setup(void){
   Serial.begin(115200); 
   delay(5000);
   Serial.println("");
+
  
   WiFi.persistent(false);
   WiFi.mode(WIFI_OFF);
@@ -69,6 +75,8 @@ void setup(void){
   Serial.println("Verbunden");
   Serial.print("IP-Adresse: ");
   Serial.println(WiFi.localIP());
+  digitalWrite(gpio13Led, HIGH);
+
 
 #if USE_MQTT == 1  
   client.setServer(mqtt_server, 1883);
@@ -77,15 +85,14 @@ void setup(void){
 
   server.on("/", [](){
     if(relais == 0){
-      server.sendHeader("Location", String("/ein"), true);
+    server.send(200, "text/html", "Schaltsteckdose ist aktuell aus.<p><a href=\"ein\">Einschalten</a></p>");
     }else{
-      server.sendHeader("Location", String("/aus"), true);
+    server.send(200, "text/html", "Schaltsteckdose ist aktuell ein.<p><a href=\"aus\">Ausschalten</a></p>");
     }
     server.send ( 302, "text/plain", "");  
-  });
-  
+  });  
   server.on("/ein", [](){
-    server.send(200, "text/html", "Schaltsteckdose ausschalten<p><a href=\"aus\">AUS</a></p>");
+    server.send(200, "text/html", "Schaltsteckdose ist aktuell ein.<p><a href=\"aus\">Ausschalten</a></p>");
     relais = 1;
     digitalWrite(gpio13Led, LOW);
     digitalWrite(gpio12Relay, relais);
@@ -93,16 +100,19 @@ void setup(void){
   });
   
   server.on("/aus", [](){
-    server.send(200, "text/html", "Schaltsteckdose einschalten<p><a href=\"ein\">EIN</a></p>");
+    server.send(200, "text/html", "Schaltsteckdose ist aktuell aus.<p><a href=\"ein\">Einschalten</a></p>");
     relais = 0;
     digitalWrite(gpio13Led, HIGH);
     digitalWrite(gpio12Relay, relais);
     delay(1000); 
   });
+
   
   server.begin();
   Serial.println("HTTP server started");
-  
+
+  checker.attach(0.1, check);
+
 }
 
 #if USE_MQTT == 1
@@ -136,6 +146,29 @@ void MqttReconnect() {
   }
 }
 #endif
+
+//check gpio0
+void check(void)
+{
+if ((digitalRead(0) == 0) and not status)
+  {
+    status=(digitalRead(0) == 0);
+    if (relais == 0) {
+    relais = 1;
+    digitalWrite(gpio13Led, LOW);
+    digitalWrite(gpio12Relay, relais);
+  //Switch off
+    } else {
+    relais = 0;
+    digitalWrite(gpio13Led, HIGH);
+    digitalWrite(gpio12Relay, relais);
+    }
+  }
+  status=(digitalRead(0) == 0);
+}
+
+
+
 
 
 void loop(void){
