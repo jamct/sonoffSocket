@@ -13,8 +13,9 @@
 #if USE_MQTT == 1
 	#include <PubSubClient.h>
 	//Your MQTT Broker
-	const char* mqtt_server = "your_mqtt";
-	const char* mqtt_topic = "socket/switch";
+	const char* mqtt_server = "your mqtt broker";
+	const char* mqtt_in_topic = "socket/switch/set";
+  const char* mqtt_out_topic = "socket/switch/status";
 	
 #endif
 
@@ -30,6 +31,7 @@ ESP8266WebServer server(80);
 #if USE_MQTT == 1
 	WiFiClient espClient;
 	PubSubClient client(espClient);
+  bool status_mqtt = 1;
 #endif
 
 int gpio13Led = 13;
@@ -140,7 +142,10 @@ void MqttReconnect() {
     Serial.print("Connect to MQTT-Broker");
     if (client.connect("SonoffSocket")) {
       Serial.println("connected");
-      client.subscribe(mqtt_topic);
+      //publish ready
+      client.publish(mqtt_out_topic, "mqtt client ready");
+      //subscribe in topic
+      client.subscribe(mqtt_in_topic);
     } else {
       Serial.print("failed: ");
       Serial.print(client.state());
@@ -149,6 +154,22 @@ void MqttReconnect() {
     }
   }
 }
+
+void MqttStatePublish() {
+  if (relais == 1 and not status_mqtt)
+     {
+      status_mqtt = relais;
+      client.publish(mqtt_out_topic, "on");
+      Serial.println("MQTT publish: on");
+     }
+  if (relais == 0 and status_mqtt)
+     {
+      status_mqtt = relais;
+      client.publish(mqtt_out_topic, "off");
+      Serial.println("MQTT publish: off");
+     }
+}
+
 #endif
 
 //check gpio0 (button of Sonoff device)
@@ -183,7 +204,10 @@ void loop(void){
 //MQTT
    if (!client.connected()) {
     MqttReconnect();
-  }
+   }
+   if (client.connected()) {
+    MqttStatePublish();
+   }
   client.loop();
 #endif  
 } 
