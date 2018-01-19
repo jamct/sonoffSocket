@@ -111,6 +111,31 @@ void setup(void){
     delay(1000); 
   });
 
+  server.on("/state", [](){
+    if(relais == 0){
+    server.send(200, "text/html", "off");
+    }else{
+    server.send(200, "text/html", "on");
+    }
+  });
+
+   server.on("/toggle", [](){
+    if(relais == 0){
+      server.send(200, "text/html", "Schaltsteckdose ist aktuell ein.<p><a href=\"aus\">Ausschalten</a></p>");
+      relais = 1;
+      digitalWrite(gpio13Led, LOW);
+      digitalWrite(gpio12Relay, relais);
+      delay(1000);
+    }else{
+      server.send(200, "text/html", "Schaltsteckdose ist aktuell aus.<p><a href=\"ein\">Einschalten</a></p>");
+      relais = 0;
+      digitalWrite(gpio13Led, HIGH);
+      digitalWrite(gpio12Relay, relais);
+      delay(1000);
+    }
+    server.send ( 302, "text/plain", "");  
+  }); 
+
   
   server.begin();
   Serial.println("HTTP server started");
@@ -191,9 +216,6 @@ if ((digitalRead(0) == 0) and not status)
   }
   status=(digitalRead(0) == 0);
 }
-
-
-
 
 
 void loop(void){
