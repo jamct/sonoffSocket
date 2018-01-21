@@ -198,9 +198,8 @@ void setup(void){
     }
     if (message == "") //No Parameter
     {
-      message += "<form action=\"timer\" id=\"on\">Timer zum Einschalten <input type=\"text\" name=\"on\" id=\"on\" maxlength=\"5\"> Sekunden<button type=\"submit\">Starten</button></form>";
-      message += "<form action=\"timer\" id=\"on\">Timer zum Ausschalten <input type=\"text\" name=\"on\" id=\"on\" maxlength=\"5\"> Sekunden <button type=\"submit\">Starten</button></form>";
-    }
+      message += "<form action=\"timer\" id=\"on\">Timer bis zum Ausschalten <input type=\"text\" name=\"on\" id=\"on\" maxlength=\"5\"> Sekunden<button type=\"submit\">Starten</button></form>";
+      message += "<form action=\"timer\" id=\"off\">Timer bis zum Einschalten <input type=\"text\" name=\"off\" id=\"off\" maxlength=\"5\"> Sekunden <button type=\"submit\">Starten</button></form>";    }
     server.send(200, "text/html", message);
     server.send ( 302, "text/plain", "");
   });
