@@ -163,10 +163,14 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
 }
 
 void MqttReconnect() {
+  String clientID = "SonoffSocket_"; // 13 chars
+  clientID += WiFi.macAddress();//17 chars
+
   while (!client.connected()) {
     Serial.print("Connect to MQTT-Broker");
-    if (client.connect("SonoffSocket")) {
-      Serial.println("connected");
+    if (client.connect(clientID.c_str())) {
+      Serial.print("connected as clientID:");
+      Serial.println(clientID);
       //publish ready
       client.publish(mqtt_out_topic, "mqtt client ready");
       //subscribe in topic
