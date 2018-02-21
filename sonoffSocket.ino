@@ -38,8 +38,8 @@ ESP8266HTTPUpdateServer httpUpdater;
 #endif
 
 #if USE_MQTT == 1
-	WiFiClient espClient;
-	PubSubClient client(espClient);
+  WiFiClient espClient;
+  PubSubClient client(espClient);
   bool status_mqtt = 1;
 #endif
 
@@ -139,6 +139,8 @@ void setup(void){
     }
     server.send ( 302, "text/plain", "");  
   });  
+  
+  //German Path, left for compatibility
   server.on("/ein", [](){
     server.send(200, "text/html", "Schaltsteckdose ist aktuell ein.<p><a href=\"aus\">Ausschalten</a></p>");
     Switch_On();
@@ -151,6 +153,19 @@ void setup(void){
     delay(1000); 
   });
 
+   server.on("/on", [](){
+    server.send(200, "text/html", "Schaltsteckdose ist aktuell ein.<p><a href=\"aus\">Ausschalten</a></p>");
+    Switch_On();
+    delay(1000);
+  });
+  
+  server.on("/off", [](){
+    server.send(200, "text/html", "Schaltsteckdose ist aktuell aus.<p><a href=\"ein\">Einschalten</a></p>");
+    Switch_Off();
+    delay(1000);
+  });
+
+  
   server.on("/state", [](){
     if(relais == 0){
     server.send(200, "text/html", "off");
@@ -185,6 +200,7 @@ void setup(void){
         int dauer = server.arg(i).toInt();
         startAt = millis() + (dauer * 1000);
         message += "Aus die nächsten " + String(dauer) + "s";
+        server.send(200, "text/html", message);
         Switch_Off();
         delay(100);
       }
@@ -193,6 +209,7 @@ void setup(void){
         int dauer = server.arg(i).toInt();
         stopAt = millis() + (dauer * 1000);
         message += "An die nächsten " + String(dauer) + "s";
+        server.send(200, "text/html", message);
         Switch_On();
       }
     }
@@ -202,6 +219,7 @@ void setup(void){
       message += "<form action=\"timer\" id=\"off\">Timer bis zum Einschalten <input type=\"text\" name=\"off\" id=\"off\" maxlength=\"5\"> Sekunden <button type=\"submit\">Starten</button></form>";
     server.send(200, "text/html", message);
     server.send ( 302, "text/plain", "");
+    }
   });
 
 #if USE_WEBUPDATE == 1
@@ -220,7 +238,7 @@ void MqttCallback(char* topic, byte* payload, unsigned int length) {
   // Switch on
   if ((char)payload[0] == '1') {
     Switch_On();
-	//Switch off
+  //Switch off
   } else {
     Switch_Off();
   }
@@ -300,7 +318,7 @@ void check(void)
   }
 #if USE_LOCAL_BUTTON == 1
   //check gpio0 (button of Sonoff device)
-	
+  
 if ((digitalRead(0) == 0) and not status)
   {
     status=(digitalRead(0) == 0);
@@ -317,9 +335,9 @@ if ((digitalRead(0) == 0) and not status)
 
 
 void loop(void){
-	//Webserver	
+  //Webserver 
   server.handleClient();
-	
+  
 #if USE_MQTT == 1
 //MQTT
    if (!client.connected()) {
