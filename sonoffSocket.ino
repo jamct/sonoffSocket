@@ -10,6 +10,9 @@
 //If you don`t want to use local button switch to 0
 #define USE_LOCAL_BUTTON 1
 
+//If you want to use the sonoff TH10's or TH16's humidity and temperature sensor set to 1
+#define IS_TH10_16 0
+
 // Allow WebUpdate
 #define USE_WEBUPDATE 1
 #if USE_WEBUPDATE == 1
@@ -17,20 +20,17 @@
 #endif
 
 #if USE_MQTT == 1
-	#include <PubSubClient.h>
-	//Your MQTT Broker
-	const char* mqtt_server = "your mqtt broker";
-	const char* mqtt_in_topic = "socket/switch/set";
-  const char* mqtt_out_topic = "socket/switch/status";
-	
+  #include <PubSubClient.h>
+  //Your MQTT Broker
+  const char* mqtt_server = "your mqtt broker";
+  const char* mqtt_in_topic = "socket/switch/set";
+  const char* mqtt_out_topic = "socket/switch/status";	
 #endif
 
-
-//Yout Wifi SSID
+//Your Wifi SSID
 const char* ssid = "your_ssid";
 //Your Wifi Key
 const char* password = "your_key";
-
 
 ESP8266WebServer server(80);
 #if USE_WEBUPDATE == 1
@@ -45,6 +45,12 @@ ESP8266HTTPUpdateServer httpUpdater;
 
 int gpio13Led = 13;
 int gpio12Relay = 12;
+
+#if IS_TH10_16 == 1
+  #include <DHT.h>
+  int gpio14HumTemp = 14;
+  DHT dht(gpio14HumTemp, DHT21);
+#endif
 
 bool lamp = 0;
 bool relais = 0;
@@ -62,7 +68,7 @@ unsigned long startAt = 0;
 void setup(void){
   Serial.begin(115200); 
   delay(5000);
-  Serial.println("");
+  Serial.println("Setting up");
 
  
   WiFi.persistent(false);
@@ -75,6 +81,11 @@ void setup(void){
   
   pinMode(gpio12Relay, OUTPUT);
   digitalWrite(gpio12Relay, relais);
+
+#if IS_TH10_16 == 1
+  Serial.println("DHT21!");
+  dht.begin();
+#endif
 
   // Wait for WiFi
   Serial.println("");
@@ -115,6 +126,12 @@ void setup(void){
     msg += "<a href=\"update\">Update</a><br />\n";
 #endif
     msg += "</p>\n";
+#if IS_TH10_16 == 1
+    msg += "<H2>Sensoren</H2>\n<p>";
+    msg += "Luftfeuchte: " + String(dht.readHumidity()) + "&nbsp;%<br />\n";
+    msg += "Temperatur: " + String(dht.readTemperature()) + "&#x2103;<br />\n";
+    msg += "</p>\n";
+#endif
     msg += "<H2>WiFi</H2>\n<p>";
     msg += "IP: " + WiFi.localIP().toString() + "<br />\n";
     msg += "Mask: " + WiFi.subnetMask().toString() + "<br />\n";
@@ -164,7 +181,6 @@ void setup(void){
     Switch_Off();
     delay(1000);
   });
-
   
   server.on("/state", [](){
     if(relais == 0){
