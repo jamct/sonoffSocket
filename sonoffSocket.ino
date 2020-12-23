@@ -31,6 +31,23 @@ const char* ssid = "your_ssid";
 //Your Wifi Key
 const char* password = "your_key";
 
+// constants
+const char* switchOnHtmlLink = "<a href=\"ein\">Einschalten</a>";
+const char* switchOffHtmlLink = "<a href=\"aus\">Ausschalten</a>";
+const char* switchStateJavascript = "<script>" +
+	"function httpGet(theUrl){" +
+	"var xmlHttp = new XMLHttpRequest();" +
+	"xmlHttp.open( 'GET', theUrl, false );" +
+	"xmlHttp.send( null );" +
+	"return xmlHttp.responseText;" +
+	"}" +
+	"function switchState(newState){" +
+	"httpGet(newState);" +
+	"location.reload();" +
+	"}" +
+	"</script>";
+const char* switchOnHtmlButton = switchStateJavascript + "<p style="display:flex"><button style="flex-grow:1;height:10rem" onclick="switchState('ein')">Einschalten</button></p>";
+const char* switchOffHtmlButton = switchStateJavascript + "<p style="display:flex"><button style="flex-grow:1;height:10rem" onclick="switchState('aus')">Ausschalten</button></p>";
 
 ESP8266WebServer server(80);
 #if USE_WEBUPDATE == 1
@@ -106,8 +123,8 @@ void setup(void){
     String msg = "<H1>Sonoff</H1>\n";
     msg += "uptime " + String(millis() / 1000) + "s<br />\n";
     msg += "<H2>Befehle</H2>\n<p>";
-    msg += "<a href=\"ein\">Einschalten</a><br />\n";
-    msg += "<a href=\"aus\">Ausschalten</a><br />\n";
+    msg += switchOnHtmlLink + "<br />\n";
+    msg += switchOffHtmlLink + "<br />\n";
     msg += "<a href=\"toggle\">Umschalten</a><br />\n";
     msg += "<a href=\"state\">Schaltstatus</a><br />\n";
     msg += "<a href=\"timer\">Timer</a><br />\n";
@@ -133,34 +150,34 @@ void setup(void){
       msg += "Timer bis zum Ausschalten noch " + String((stopAt - millis()) / 1000) + "s. ";
     }
     if (relais == 0) {
-      server.send(200, "text/html", msg + "Schaltsteckdose ist aktuell aus.<p><a href=\"ein\">Einschalten</a></p>");
+      server.send(200, "text/html", msg + "Schaltsteckdose ist aktuell aus." + switchOffHtmlButton);
     } else {
-      server.send(200, "text/html", msg + "Schaltsteckdose ist aktuell ein.<p><a href=\"aus\">Ausschalten</a></p>");
+      server.send(200, "text/html", msg + "Schaltsteckdose ist aktuell ein." + switchOnHtmlButton);
     }
     server.send ( 302, "text/plain", "");  
   });  
   
   //German Path, left for compatibility
   server.on("/ein", [](){
-    server.send(200, "text/html", "Schaltsteckdose ist aktuell ein.<p><a href=\"aus\">Ausschalten</a></p>");
+    server.send(200, "text/html", "Schaltsteckdose ist aktuell ein." + switchOffHtmlButton);
     Switch_On();
     delay(1000);
   });
   
   server.on("/aus", [](){
-    server.send(200, "text/html", "Schaltsteckdose ist aktuell aus.<p><a href=\"ein\">Einschalten</a></p>");
+    server.send(200, "text/html", "Schaltsteckdose ist aktuell aus." + switchOnHtmlButton);
     Switch_Off();
     delay(1000); 
   });
 
    server.on("/on", [](){
-    server.send(200, "text/html", "Schaltsteckdose ist aktuell ein.<p><a href=\"aus\">Ausschalten</a></p>");
+    server.send(200, "text/html", "Schaltsteckdose ist aktuell ein." + switchOffHtmlButton);
     Switch_On();
     delay(1000);
   });
   
   server.on("/off", [](){
-    server.send(200, "text/html", "Schaltsteckdose ist aktuell aus.<p><a href=\"ein\">Einschalten</a></p>");
+    server.send(200, "text/html", "Schaltsteckdose ist aktuell aus." + switchOnHtmlButton);
     Switch_Off();
     delay(1000);
   });
@@ -176,11 +193,11 @@ void setup(void){
 
    server.on("/toggle", [](){
     if(relais == 0){
-      server.send(200, "text/html", "Schaltsteckdose ist aktuell ein.<p><a href=\"aus\">Ausschalten</a></p>");
+      server.send(200, "text/html", "Schaltsteckdose ist aktuell ein." + switchOffHtmlButton);
       Switch_On();
       delay(1000);
     }else{
-      server.send(200, "text/html", "Schaltsteckdose ist aktuell aus.<p><a href=\"ein\">Einschalten</a></p>");
+      server.send(200, "text/html", "Schaltsteckdose ist aktuell aus." + switchOnHtmlButton);
       Switch_Off();
       delay(1000);
     }
