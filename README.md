@@ -4,7 +4,16 @@ Switching Sonoff Basic and Sonoff S20 (Webserver, local button and MQTT).
 ## Getting started
 This project ist split in two parts: sonoffSimple/sonoffSimple.ino is just a simple demo as described [here](https://ct.de/yxgs).
 
-The more advanced software (sonoffSocket.ino) supports MQTT, toggle, status and is actively developed. Just copy sonoffSocket.ino into your Arduino-IDE folder. To use mqtt you have to install external library "PubSubClient". Change your SSID and WiFi-Key and activate MQTT if needed (choose a topic too).
+The more advanced software (sonoffSocket.ino) supports MQTT, toggle, status and is actively developed. Just copy sonoffSocket.ino into your Arduino-IDE folder. To use mqtt you have to install external library "PubSubClient". Activate MQTT if needed (choose a topic too) in sonoffSocket.ino.
+
+Create a WiFiConfig.h with this content:
+```
+//Your Wifi SSID
+const char* ssid = "your_ssid";
+//Your Wifi Key
+const char* password = "your_key";
+```
+
 Connect Sonoff Basic or Sonoff S20 to your FTDI-Adapter and flash it using the Arduino-IDE.
 
 ## How it works
