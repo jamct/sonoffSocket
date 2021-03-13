@@ -4,6 +4,7 @@
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <Ticker.h>
+#include "WiFiConfig.h"
 
 //To use MQTT, install Library "PubSubClient" and switch next line to 1
 #define USE_MQTT 0
@@ -25,11 +26,6 @@
 	
 #endif
 
-
-//Yout Wifi SSID
-const char* ssid = "your_ssid";
-//Your Wifi Key
-const char* password = "your_key";
 
 // constants
 const char* switchOnHtmlLink = "<a href=\"ein\">Einschalten</a>";
