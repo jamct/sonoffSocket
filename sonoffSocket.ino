@@ -19,8 +19,6 @@
 
 #if USE_MQTT == 1
 	#include <PubSubClient.h>
-	//Your MQTT Broker
-	const char* mqtt_server = "your mqtt broker";
 	const char* mqtt_in_topic = "socket/switch/set";
   const char* mqtt_out_topic = "socket/switch/status";
 	
