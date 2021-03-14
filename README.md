@@ -12,6 +12,8 @@ Create a WiFiConfig.h with this content:
 const char* ssid = "your_ssid";
 //Your Wifi Key
 const char* password = "your_key";
+//Your MQTT Broker
+const char* mqtt_server = "your.mqtt.broker.IP";
 ```
 
 Connect Sonoff Basic or Sonoff S20 to your FTDI-Adapter and flash it using the Arduino-IDE.
