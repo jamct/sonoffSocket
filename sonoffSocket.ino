@@ -22,7 +22,7 @@
 	const char* mqtt_server = "your mqtt broker";
 	const char* mqtt_in_topic = "socket/switch/set";
   const char* mqtt_out_topic = "socket/switch/status";
-	
+  int lastTrial = 0; // remember last trial to establish MQTT Server
 #endif
 
 
@@ -249,7 +249,7 @@ void MqttReconnect() {
   String clientID = "SonoffSocket_"; // 13 chars
   clientID += WiFi.macAddress();//17 chars
 
-  while (!client.connected()) {
+  if ((lastTrial + 5000) < millis()) {
     Serial.print("Connect to MQTT-Broker");
     if (client.connect(clientID.c_str())) {
       Serial.print("connected as clientID:");
@@ -259,10 +259,10 @@ void MqttReconnect() {
       //subscribe in topic
       client.subscribe(mqtt_in_topic);
     } else {
-      Serial.print("failed: ");
+      lastTrial = millis();
+      Serial.print(": failed-state: ");
       Serial.print(client.state());
-      Serial.println(" try again...");
-      delay(5000);
+      Serial.println(". try again...");
     }
   }
 }
