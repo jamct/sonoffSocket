@@ -4,6 +4,7 @@
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <Ticker.h>
+#include "WiFiConfig.h"
 
 //To use MQTT, install Library "PubSubClient" and switch next line to 1
 #define USE_MQTT 0
@@ -18,19 +19,10 @@
 
 #if USE_MQTT == 1
 	#include <PubSubClient.h>
-	//Your MQTT Broker
-	const char* mqtt_server = "your mqtt broker";
 	const char* mqtt_in_topic = "socket/switch/set";
   const char* mqtt_out_topic = "socket/switch/status";
 	
 #endif
-
-
-//Yout Wifi SSID
-const char* ssid = "your_ssid";
-//Your Wifi Key
-const char* password = "your_key";
-
 
 ESP8266WebServer server(80);
 #if USE_WEBUPDATE == 1
